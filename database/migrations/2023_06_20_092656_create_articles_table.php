@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('author');
             $table->string('url');
             $table->string('source');
-            $table->string('apiUrl');
+            $table->string('api_url');
             $table->timestamps();
         });
     }

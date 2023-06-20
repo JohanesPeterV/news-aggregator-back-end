@@ -16,9 +16,10 @@ return new class extends Migration
             $table->string('title');
             $table->string('description');
             $table->string('author');
+            $table->string('author');
             $table->string('url');
             $table->string('source');
-            $table->string('api_url');
+            $table->date('publish_date');
             $table->timestamps();
         });
     }

@@ -19,9 +19,10 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
-        $this->call([
-            // UserSeeder::class,
-            ArticleSeeder::class
-        ]);
+        dd(env('SANCTUM_STATEFUL_DOMAINS'));
+        // $this->call([
+        //     UserSeeder::class,
+        //     ArticleSeeder::class
+        // ]);
     }
 }

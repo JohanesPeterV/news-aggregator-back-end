@@ -6,6 +6,8 @@ use App\Models\Article;
 use App\Models\User;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Str;
+
 class ArticleController extends Controller
 {
 
@@ -24,14 +26,9 @@ class ArticleController extends Controller
      */
     public function index(Request $request)
     {
-        $searchTerm = $request->q;
-        $category = $request->category;
-        $startDate = $request->start_date;
-        $endDate = $request->end_date;
-
         $query = Article::query();
 
-        if ($searchTerm) {
+        if ($searchTerm = $request->q) {
             $query->where(function ($innerQuery) use ($searchTerm) {
                 $innerQuery->where('title', 'LIKE', "%$searchTerm%")
                     ->orWhere('content', 'LIKE', "%$searchTerm%")
@@ -40,15 +37,25 @@ class ArticleController extends Controller
             });
         }
 
-        if ($category) {
+        if ($category = $request->category) {
             $query->where('category', $category);
         }
 
-        if ($startDate && $endDate) {
+        if ($startDate = $request->start_date && $endDate = $request->end_date) {
             $query->whereBetween('publish_date', [$startDate, $endDate]);
         }
 
-        $articles = $query->get();
+        $perPage = $request->per_page ?? 10;
+        $page = $request->page ?? 1;
+
+        $articles = $query->paginate($perPage, ['*'], 'page', $page);
+
+        $collection = $articles->items();
+
+        foreach ($collection as $article) {
+            $article->content = Str::limit(strip_tags($article->content), 200) . (Str::length($article->content) > 200 ? '...' : '');
+        }
+
 
         return response()->json(['articles' => $articles]);
     }

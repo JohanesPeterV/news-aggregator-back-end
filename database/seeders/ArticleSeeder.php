@@ -20,7 +20,8 @@ class ArticleSeeder extends Seeder
         $this->seedFromNewsApi();
     }
 
-    private function seedFromNewsCred(){
+    private function seedFromNewsCred():void
+    {
         $fetchResult = Http::get(
             'https://api.newscred.com/v2/feed/f29434f4ad757c32b966019d956c0e4c',
             [
@@ -30,10 +31,13 @@ class ArticleSeeder extends Seeder
         $articlesJson = $fetchResult->json();
         foreach ($articlesJson['entries'] as $articleJson) {
             $article=Article::fromNewsCred($articleJson);
-            $article->save();
+            if($article->image_url!=''){
+                $article->save();
+
+            }
         }
     }
-    private function seedFromNewsApi()
+    private function seedFromNewsApi():void
     {
 
         $fetchResult = Http::get(
@@ -47,11 +51,14 @@ class ArticleSeeder extends Seeder
         $articlesJson = $fetchResult->json();
         foreach ($articlesJson['articles'] as $articleJson) {
             $article=Article::fromNewsApi($articleJson);
-            $article->save();
+            if($article->image_url!=''){
+                $article->save();
+
+            }
         }
     }
 
-    private function seedFromNytimesApi()
+    private function seedFromNytimesApi():void
     {
 
         $fetchResult = Http::get(
@@ -64,7 +71,11 @@ class ArticleSeeder extends Seeder
         $articlesJson = $fetchResult->json();
         foreach ($articlesJson['results'] as $articleJson) {
             $article=Article::fromNytimesApi($articleJson);
-            $article->save();
+
+            if($article->image_url!=''){
+                $article->save();
+
+            }
         }
     }
 }

@@ -1,9 +1,8 @@
 <?php
 
 use App\Http\Controllers\ArticleController;
-use Illuminate\Http\Client\Pool;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,7 +21,17 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 });
 
 
-Route::middleware(['auth:sanctum'])->prefix('articles')->group(function () {
-    Route::get('', [ArticleController::class, 'index']);
-    Route::get('/categories', [ArticleController::class, 'distinctCategories']);
+Route::middleware(['auth:sanctum'])->group(function(){
+    Route::prefix('/articles')->group(function () {
+        Route::get('', [ArticleController::class, 'index']);
+        Route::get('/for-you', [ArticleController::class, 'indexBasedOnPreferences']);
+        Route::get('/categories', [ArticleController::class, 'distinctCategories']);
+        Route::get('/sources', [ArticleController::class, 'distinctSources']);
+        Route::get('/authors', [ArticleController::class, 'distinctAuthors']);
+    });
+    Route::prefix('/users')->group(function () {
+        Route::put('/preferences', [UserController::class, 'updatePreferences']);
+        Route::get('/preferences', [UserController::class, 'getPreferences']);
+    });
 });
+

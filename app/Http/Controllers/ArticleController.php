@@ -11,16 +11,6 @@ use Illuminate\Support\Str;
 class ArticleController extends Controller
 {
 
-    public function personalizedArticles(Request $request)
-    {
-        $user = User::find($request->user()->id);
-        $articles = Article::whereIn('source', $user->preferred_sources)
-            ->orWhereIn('category', $user->preferred_categories)
-            ->orWhereIn('author', $user->preferred_authors)
-            ->get();
-
-        return response()->json(['articles' => $articles]);
-    }
     /**
      * Display a listing of the resource.
      */
@@ -63,20 +53,54 @@ class ArticleController extends Controller
     public function indexBasedOnPreferences(Request $request)
     {
         $user = User::find($request->user()->id);
-        $preferences = $user->preferences ?? [];
+        $preferences = $user->preferences?json_decode($user->preferences,true) : [];
 
-        $articles = Article::whereIn('source', $preferences['preferred_sources'] ?? [])
-            ->orWhereIn('category', $preferences['preferred_categories'] ?? [])
-            ->orWhereIn('author', $preferences['preferred_authors'] ?? [])
-            ->get();
+        $query = Article::query();
+
+        if (!empty($preferences)) {
+            $preferredSources = $preferences['preferred_sources'] ?? [];
+            if (!empty($preferredSources)) {
+                $query->whereIn('source', $preferredSources);
+            }
+
+            $preferredCategories = $preferences['preferred_categories'] ?? [];
+            if (!empty($preferredCategories)) {
+                $query->whereIn('category', $preferredCategories);
+            }
+
+            $preferredAuthors = $preferences['preferred_authors'] ?? [];
+            if (!empty($preferredAuthors)) {
+                $query->whereIn('author', $preferredAuthors);
+            }
+        }
+
+        $perPage = $request->per_page ?? 10;
+        $page = $request->page ?? 1;
+
+        $articles = $query->paginate($perPage, ['*'], 'page', $page);
+
+
         return response()->json(['articles' => $articles]);
     }
+
 
 
     public function distinctCategories()
     {
         $categories = Article::distinct('category')->pluck('category');
         return response()->json(['categories' => $categories]);
+    }
+
+    public function distinctAuthors()
+    {
+        $authors = Article::distinct('author')->pluck('author');
+        return response()->json(['authors' => $authors]);
+    }
+
+    public function distinctSources()
+    {
+        $sources = Article::distinct('source')->pluck('source');
+        return response()->json(['sources' => $sources]);
     }
 
     //     2. Article search and filtering: Users should be able to search for articles by keyword

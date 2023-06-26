@@ -21,8 +21,11 @@ class Article extends Model
         'source',
         'publish_date'
     ];
+    /**
+     * @var mixed|string
+     */
 
-    public static function fromNewsCred($articleJson)
+    public static function fromNewsCred($articleJson):Article
     {
         $contentJson = $articleJson['content'];
         $article = new Article();
@@ -42,7 +45,7 @@ class Article extends Model
         return $article;
     }
 
-    public static function fromNewsApi($articleJson)
+    public static function fromNewsApi($articleJson):Article
     {
         $article = new Article();
         $article->title = $articleJson['title'];
@@ -56,7 +59,7 @@ class Article extends Model
         return $article;
     }
 
-    public static function fromNytimesApi($articleJson)
+    public static function fromNytimesApi($articleJson):Article
     {
         $article = new Article();
         $article->title = $articleJson['title'];
